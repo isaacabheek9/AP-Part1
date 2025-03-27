@@ -92,3 +92,70 @@ volatility_df.loc["Volatility-3Y"] = volatility3
 volatility_df.loc["Volatility-5Y"] = volatility5
 volatility_df.loc["Volatility-7Y"] = volatility7
 volatility_df.loc["Volatility-10Y"] = volatility10
+
+
+# =============================================================================
+# CVAR
+# =============================================================================
+cvar_df= merged_df
+cvar_df = cvar_df.apply(pd.to_numeric, errors='coerce')
+
+def calculate_cvar(returns, confidence_level=0.95):
+
+    var = np.percentile(returns, 100 * (1 - confidence_level))
+    cvar = returns[returns <= var].mean() 
+    return cvar
+
+confidence_level1 = 0.95
+
+cvar_values_95_1 = cvar_df.tail(12).apply(lambda col: calculate_cvar(col, confidence_level1))
+cvar_values_95_3 = cvar_df.tail(36).apply(lambda col: calculate_cvar(col, confidence_level1))
+cvar_values_95_5 = cvar_df.tail(60).apply(lambda col: calculate_cvar(col, confidence_level1))
+cvar_values_95_7 = cvar_df.tail(84).apply(lambda col: calculate_cvar(col, confidence_level1))
+cvar_values_95_10 = cvar_df.tail(120).apply(lambda col: calculate_cvar(col, confidence_level1))
+
+cvar_df.loc["CVAR95-1Y"] = cvar_values_95_1
+cvar_df.loc["CVAR95-3Y"] = cvar_values_95_3
+cvar_df.loc["CVAR95-5Y"] = cvar_values_95_5
+cvar_df.loc["CVAR95-7Y"] = cvar_values_95_7
+cvar_df.loc["CVAR95-10Y"] = cvar_values_95_10
+
+confidence_level2 = 0.90
+
+cvar_values_90_1 = cvar_df.tail(12).apply(lambda col: calculate_cvar(col, confidence_level2))
+cvar_values_90_3 = cvar_df.tail(36).apply(lambda col: calculate_cvar(col, confidence_level2))
+cvar_values_90_5 = cvar_df.tail(60).apply(lambda col: calculate_cvar(col, confidence_level2))
+cvar_values_90_7 = cvar_df.tail(84).apply(lambda col: calculate_cvar(col, confidence_level2))
+cvar_values_90_10 = cvar_df.tail(120).apply(lambda col: calculate_cvar(col, confidence_level2))
+
+cvar_df.loc["CVAR90-1Y"] = cvar_values_90_1
+cvar_df.loc["CVAR90-3Y"] = cvar_values_90_3
+cvar_df.loc["CVAR90-5Y"] = cvar_values_90_5
+cvar_df.loc["CVAR90-7Y"] = cvar_values_90_7
+cvar_df.loc["CVAR90-10Y"] = cvar_values_90_10
+
+confidence_level3 = 0.99
+
+cvar_values_99_1 = cvar_df.tail(12).apply(lambda col: calculate_cvar(col, confidence_level3))
+cvar_values_99_3 = cvar_df.tail(36).apply(lambda col: calculate_cvar(col, confidence_level3))
+cvar_values_99_5 = cvar_df.tail(60).apply(lambda col: calculate_cvar(col, confidence_level3))
+cvar_values_99_7 = cvar_df.tail(84).apply(lambda col: calculate_cvar(col, confidence_level3))
+cvar_values_99_10 = cvar_df.tail(120).apply(lambda col: calculate_cvar(col, confidence_level3))
+
+cvar_df.loc["CVAR99-1Y"] = cvar_values_99_1
+cvar_df.loc["CVAR99-3Y"] = cvar_values_99_3
+cvar_df.loc["CVAR99-5Y"] = cvar_values_99_5
+cvar_df.loc["CVAR99-7Y"] = cvar_values_99_7
+cvar_df.loc["CVAR99-10Y"] = cvar_values_99_10
+
+avar1 =  (cvar_values_95_1 + cvar_values_90_1 +cvar_values_99_1)/3
+avar3 =  (cvar_values_95_3 + cvar_values_90_3 +cvar_values_99_3)/3
+avar5 =  (cvar_values_95_5 + cvar_values_90_5 +cvar_values_99_5)/3
+avar7 =  (cvar_values_95_7 + cvar_values_90_7 +cvar_values_99_7)/3
+avar10 =  (cvar_values_95_10 + cvar_values_90_10 +cvar_values_99_10)/3
+
+cvar_df.loc["AVAR-1Y"] = avar1
+cvar_df.loc["AVAR-3Y"] = avar3
+cvar_df.loc["AVAR-5Y"] = avar5
+cvar_df.loc["AVAR-7Y"] = avar7
+cvar_df.loc["AVAR-10Y"] = avar10
