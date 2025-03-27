@@ -95,7 +95,7 @@ volatility_df.loc["Volatility-10Y"] = volatility10
 
 
 # =============================================================================
-# CVAR
+# CVAR and AVAR
 # =============================================================================
 cvar_df= merged_df
 cvar_df = cvar_df.apply(pd.to_numeric, errors='coerce')
@@ -159,3 +159,59 @@ cvar_df.loc["AVAR-3Y"] = avar3
 cvar_df.loc["AVAR-5Y"] = avar5
 cvar_df.loc["AVAR-7Y"] = avar7
 cvar_df.loc["AVAR-10Y"] = avar10
+
+# =============================================================================
+# Maximum Drawdown
+# =============================================================================
+
+mdd_df= merged_df
+mdd_df = mdd_df.apply(pd.to_numeric, errors='coerce')
+
+def calculate_max_drawdown(returns):
+
+    cumulative_returns = (1 + returns).cumprod()  
+    peak = cumulative_returns.cummax()  
+    drawdown = (cumulative_returns - peak) / peak  
+    max_drawdown = drawdown.min() 
+    
+    return max_drawdown
+
+mdd_values1 = mdd_df.tail(12).apply(calculate_max_drawdown)
+mdd_values3 = mdd_df.tail(36).apply(calculate_max_drawdown)
+mdd_values5 = mdd_df.tail(60).apply(calculate_max_drawdown)
+mdd_values7 = mdd_df.tail(84).apply(calculate_max_drawdown)
+mdd_values10 = mdd_df.tail(120).apply(calculate_max_drawdown)
+
+mdd_df.loc["MDD-1Y"] = mdd_values1
+mdd_df.loc["MDD-3Y"] = mdd_values3
+mdd_df.loc["MDD-5Y"] = mdd_values5
+mdd_df.loc["MDD-7Y"] = mdd_values7
+mdd_df.loc["MDD-10Y"] = mdd_values10
+
+# =============================================================================
+# Downside Deviation
+# =============================================================================
+
+dd_df= merged_df
+dd_df = dd_df.apply(pd.to_numeric, errors='coerce')
+
+def calculate_downside_deviation(returns, target_return=0):
+
+    downside_returns = returns[returns < target_return]
+    downside_diff = downside_returns - target_return  
+    downside_deviation = np.sqrt((downside_diff**2).sum() / len(returns))
+    
+    return downside_deviation
+
+downside_dev_values1 = dd_df.tail(12).apply(calculate_downside_deviation)
+downside_dev_values3 = dd_df.tail(36).apply(calculate_downside_deviation)
+downside_dev_values5 = dd_df.tail(60).apply(calculate_downside_deviation)
+downside_dev_values7 = dd_df.tail(84).apply(calculate_downside_deviation)
+downside_dev_values10 = dd_df.tail(120).apply(calculate_downside_deviation)
+
+dd_df.loc["DD-1Y"] = downside_dev_values1
+dd_df.loc["DD-3Y"] = downside_dev_values3
+dd_df.loc["DD-5Y"] = downside_dev_values5
+dd_df.loc["DD-7Y"] = downside_dev_values7
+dd_df.loc["DD-10Y"] = downside_dev_values10
+
