@@ -7,6 +7,7 @@ Created on Thu Mar 27 10:57:11 2025
 """
 
 import pandas as pd
+import numpy as np
 
 #Canadian funds
 canadian_funds = pd.read_csv('canadian_funds_data_long.csv')
@@ -49,3 +50,45 @@ dataframes = [canadian_funds, FF_factors, Macro, us_etfs]
 dataframes = [preprocess_dataframe(df) for df in dataframes]
 
 canadian_funds, FF_factors, Macro, us_etfs = dataframes
+
+merged_df = canadian_funds.merge(us_etfs, left_index=True, right_index=True, how='inner')
+
+merged_df.fillna(0, inplace=True)
+
+# =============================================================================
+# CAGR
+# =============================================================================
+
+cagr_df= merged_df
+cagr_df = cagr_df.apply(pd.to_numeric, errors='coerce')
+
+CAGR1 = ((cagr_df.iloc[-1] - cagr_df.iloc[-13])**1) - 1
+CAGR3 = ((cagr_df.iloc[-1] - cagr_df.iloc[-25])**1/3) - 1
+CAGR5 = ((cagr_df.iloc[-1] - cagr_df.iloc[-37])**1/5) - 1
+CAGR7 = ((cagr_df.iloc[-1] - cagr_df.iloc[-49])**1/7) - 1
+CAGR10 = ((cagr_df.iloc[-1] - cagr_df.iloc[-61])**1/10) - 1
+
+cagr_df.loc["CAGR-1Y"] = CAGR1
+cagr_df.loc["CAGR-3Y"] = CAGR3
+cagr_df.loc["CAGR-5Y"] = CAGR5
+cagr_df.loc["CAGR-7Y"] = CAGR7
+cagr_df.loc["CAGR-10Y"] = CAGR10
+
+# =============================================================================
+# Volatility
+# =============================================================================
+
+volatility_df= merged_df
+volatility_df = volatility_df.apply(pd.to_numeric, errors='coerce')
+
+volatility1 = volatility_df.tail(12).std() * np.sqrt(12)
+volatility3 = volatility_df.tail(36).std() * np.sqrt(36)
+volatility5 = volatility_df.tail(60).std() * np.sqrt(60)
+volatility7 = volatility_df.tail(84).std() * np.sqrt(84)
+volatility10 = volatility_df.tail(120).std() * np.sqrt(120)
+
+volatility_df.loc["Volatility-1Y"] = volatility1
+volatility_df.loc["Volatility-3Y"] = volatility3
+volatility_df.loc["Volatility-5Y"] = volatility5
+volatility_df.loc["Volatility-7Y"] = volatility7
+volatility_df.loc["Volatility-10Y"] = volatility10
